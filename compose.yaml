@@ -5,15 +5,49 @@ services:
     image: ${FAUCET_IMAGE:-ghcr.io/retricsu/cwbtc-faucet:latest}
     restart: unless-stopped
     init: true
-    env_file: ${ENV_FILE:-.env}
     environment:
       HOST: 0.0.0.0
       PORT: 3008
+      PUBLIC_BASE_URL: "${PUBLIC_BASE_URL:-http://localhost:3008}"
+      CORS_ORIGIN: "${CORS_ORIGIN:-http://localhost:3008}"
+      TRUST_PROXY_HOPS: "${TRUST_PROXY_HOPS:-1}"
+      CKB_RPC_URL: "${CKB_RPC_URL:-https://testnet.ckbapp.dev/}"
+      FAUCET_PRIVATE_KEY_FILE: /run/secrets/faucet_private_key
+      CLAIM_AMOUNT_RAW: "${CLAIM_AMOUNT_RAW:-10000000000}"
+      ADDRESS_COOLDOWN_SECONDS: "${ADDRESS_COOLDOWN_SECONDS:-86400}"
+      IP_COOLDOWN_SECONDS: "${IP_COOLDOWN_SECONDS:-3600}"
+      ADDRESS_DAILY_CLAIM_LIMIT: "${ADDRESS_DAILY_CLAIM_LIMIT:-1}"
+      IP_DAILY_CLAIM_LIMIT: "${IP_DAILY_CLAIM_LIMIT:-5}"
+      GLOBAL_DAILY_CLAIM_LIMIT: "${GLOBAL_DAILY_CLAIM_LIMIT:-200}"
       DATABASE_PATH: /app/data/faucet.sqlite
+      IP_HASH_SALT_FILE: /run/secrets/ip_hash_salt
+      WORKER_ENABLED: "${WORKER_ENABLED:-true}"
+      WORKER_POLL_MS: "${WORKER_POLL_MS:-3000}"
+      TX_CONFIRM_TIMEOUT_MS: "${TX_CONFIRM_TIMEOUT_MS:-180000}"
+      TX_CONFIRM_POLL_MS: "${TX_CONFIRM_POLL_MS:-3000}"
+      REQUIRE_TURNSTILE: "${REQUIRE_TURNSTILE:-false}"
+      TURNSTILE_SITE_KEY: "${TURNSTILE_SITE_KEY:-}"
+      TURNSTILE_SECRET_KEY_FILE: /run/secrets/turnstile_secret_key
+      ADMIN_TOKEN_FILE: /run/secrets/admin_token
     ports:
       - "${FAUCET_PORT:-3008}:3008"
+    secrets:
+      - faucet_private_key
+      - ip_hash_salt
+      - admin_token
+      - turnstile_secret_key
     volumes:
       - faucet-data:/app/data
 
 volumes:
   faucet-data:
+
+secrets:
+  faucet_private_key:
+    file: ${FAUCET_PRIVATE_KEY_SECRET_FILE:-./secrets/faucet_private_key}
+  ip_hash_salt:
+    file: ${IP_HASH_SALT_SECRET_FILE:-./secrets/ip_hash_salt}
+  admin_token:
+    file: ${ADMIN_TOKEN_SECRET_FILE:-./secrets/admin_token}
+  turnstile_secret_key:
+    file: ${TURNSTILE_SECRET_KEY_SECRET_FILE:-./secrets/turnstile_secret_key}

@@ -17,7 +17,7 @@ function getClient(): ccc.Client {
 
 function faucetPrivateKey(): string {
   if (!config.faucetPrivateKey) {
-    throw new Error('Faucet hot wallet is not configured: FAUCET_PRIVATE_KEY is missing');
+    throw new Error('Faucet hot wallet is not configured: FAUCET_PRIVATE_KEY_FILE or FAUCET_PRIVATE_KEY is missing');
   }
   return config.faucetPrivateKey;
 }

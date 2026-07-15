@@ -7,9 +7,9 @@ This document is for the next operator or agent taking over the public testnet f
 There are two different keys:
 
 - Issuer key: stored locally in `/Users/retric/Documents/Codex/2026-07-06/ban/work/cch-wbtc-udt/issuer.json` and mirrored on Desktop. This key controls the original max-supply cWBTC cell. Keep it offline.
-- Faucet hot wallet key: set as `FAUCET_PRIVATE_KEY` in this service. This key should only hold the amount of cWBTC and CKB capacity the public faucet needs.
+- Faucet hot wallet key: mounted as the `faucet_private_key` Docker secret. This key should only hold the amount of cWBTC and CKB capacity the public faucet needs.
 
-Never commit `.env`, `issuer.json`, or wallet JSON files.
+Operators do not need the issuer key. Never commit issuer files, runtime secret files, `.env`, or wallet JSON files. The application supports `FAUCET_PRIVATE_KEY_FILE`, `IP_HASH_SALT_FILE`, `ADMIN_TOKEN_FILE`, and `TURNSTILE_SECRET_KEY_FILE`; a file value takes precedence over its legacy environment-variable equivalent.
 
 ## Funding The Faucet
 
@@ -19,7 +19,7 @@ Never commit `.env`, `issuer.json`, or wallet JSON files.
 npm run wallet:create
 ```
 
-Store the output securely. The `privateKey` becomes `FAUCET_PRIVATE_KEY`; the `address` is what you fund.
+Store the output securely. The `privateKey` becomes the contents of the `faucet_private_key` secret file; the `address` is what you fund.
 
 2. Transfer cWBTC from the issuer wallet to the hot wallet. The existing local issuer project has a working script:
 
@@ -29,7 +29,7 @@ npm run send-cwbtc -- <hot-wallet-ckt-address>=10000
 ```
 
 3. Deposit CKB testnet capacity to the hot wallet. `offckb deposit` is fine for testnet.
-4. Put the hot wallet private key in this service's `.env` as `FAUCET_PRIVATE_KEY`.
+4. Provision the hot wallet private key into the host secret file referenced by `FAUCET_PRIVATE_KEY_SECRET_FILE`. Do not put the value in `.env`.
 
 Each successful claim creates a recipient xUDT cell. Budget roughly `200 CKB` occupied capacity per claim plus fees. cWBTC itself is abundant; CKB capacity is the resource that will run out first.
 
@@ -115,15 +115,35 @@ The project uses `@ckb-ccc/ccc` for transaction building and signing because the
 
 ## Docker Deployment
 
+Create a secret directory owned by the deployment account. Generate the non-wallet secrets without printing them to the terminal, then provision the faucet key and optional Turnstile key through the team's password manager or secret-management tool.
+
+```bash
+sudo install -d -m 700 -o "$USER" -g "$(id -gn)" /etc/cwbtc-faucet/secrets
+sh -c 'umask 077; openssl rand -hex 32 > /etc/cwbtc-faucet/secrets/ip_hash_salt'
+sh -c 'umask 077; openssl rand -hex 32 > /etc/cwbtc-faucet/secrets/admin_token'
+sh -c 'umask 077; : > /etc/cwbtc-faucet/secrets/turnstile_secret_key'
+```
+
+The deployment account must be able to read these files. Keep every secret file at mode `0600`. Copy the configuration template, then set the host paths in `.env`; `.env` itself contains no secret values:
+
 ```bash
 cp .env.example .env
-# Fill in the production values, especially FAUCET_PRIVATE_KEY and IP_HASH_SALT.
+```
+
+```env
+FAUCET_PRIVATE_KEY_SECRET_FILE=/etc/cwbtc-faucet/secrets/faucet_private_key
+IP_HASH_SALT_SECRET_FILE=/etc/cwbtc-faucet/secrets/ip_hash_salt
+ADMIN_TOKEN_SECRET_FILE=/etc/cwbtc-faucet/secrets/admin_token
+TURNSTILE_SECRET_KEY_SECRET_FILE=/etc/cwbtc-faucet/secrets/turnstile_secret_key
+```
+
+```bash
 docker compose pull faucet
 docker compose up -d --no-build
 docker compose ps
 ```
 
-The container runs as the unprivileged `node` user. Compose overrides `DATABASE_PATH` to `/app/data/faucet.sqlite` and mounts the named `faucet-data` volume there. Keep that volume during deploys because it contains claim history, cooldowns, and in-flight transaction state.
+The container runs as the unprivileged `node` user. Compose mounts secrets read-only under `/run/secrets`, overrides `DATABASE_PATH` to `/app/data/faucet.sqlite`, and mounts the named `faucet-data` volume there. Keep that volume during deploys because it contains claim history, cooldowns, and in-flight transaction state.
 
 Run exactly one replica with `WORKER_ENABLED=true`. The SQLite queue and sender are intentionally single-process. Do not use `docker compose up --scale faucet=...`; a multi-replica deployment needs a shared database and a distributed worker lock first.
 
@@ -146,6 +166,16 @@ docker compose cp faucet:/app/data/faucet-backup.sqlite ./faucet-backup.sqlite
 ```
 
 Never run `docker compose down -v` during routine deploys. The `-v` option deletes the named volume and all faucet state.
+
+## Key Rotation
+
+1. Stop the faucet so no transfer is in flight.
+2. Create a new dedicated faucet wallet.
+3. Transfer the old wallet's remaining cWBTC and CKB capacity to the new address.
+4. Replace the host `faucet_private_key` secret file atomically and keep mode `0600`.
+5. Start the faucet and verify `/api/balance` reports `configured: true`.
+
+If compromise is suspected, stop the container first and sweep the hot-wallet funds immediately. Routine faucet-key rotation never requires the issuer key.
 
 Use a reverse proxy for TLS and set:
 
