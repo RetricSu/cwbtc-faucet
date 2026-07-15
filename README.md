@@ -138,6 +138,7 @@ GitHub Actions runs the TypeScript checks and publishes `ghcr.io/retricsu/cwbtc-
 - pushes to the default branch publish `ghcr.io/retricsu/cwbtc-faucet:latest` and an immutable `sha-*` tag
 - tags such as `v0.1.0` publish `0.1.0` and `0.1` image tags
 - pull requests run checks without publishing an image
+- published manifests support both `linux/amd64` and `linux/arm64`
 - every published image includes a GitHub artifact provenance attestation
 
 The workflow uses the repository-scoped `GITHUB_TOKEN`; no long-lived registry password is required. For predictable production deploys, use the `sha-*` tag or image digest rather than `latest`.
