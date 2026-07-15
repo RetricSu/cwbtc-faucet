@@ -1,4 +1,4 @@
-name: CI and container
+name: Publish container
 
 on:
   push:
