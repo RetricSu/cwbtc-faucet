@@ -56,7 +56,7 @@ export function startWorker(): void {
     return;
   }
   if (!config.faucetPrivateKey) {
-    console.warn('[worker] FAUCET_PRIVATE_KEY is not set; claims will queue but not send');
+    console.warn('[worker] faucet private key is not configured; claims will queue but not send');
   }
   schedule();
 }

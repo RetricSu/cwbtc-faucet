@@ -11,7 +11,7 @@ The original issuance artifacts are still present locally:
 - Issuer file: `issuer.json` has the issuer private key field.
 - Issue result: `issue-result.json`
 
-Do not deploy the issuer key directly. Fund a dedicated faucet hot wallet with cWBTC plus enough CKB capacity, then set `FAUCET_PRIVATE_KEY` to that hot wallet key.
+Do not deploy the issuer key directly. Fund a dedicated faucet hot wallet with cWBTC plus enough CKB capacity, then mount that hot-wallet key as the `faucet_private_key` Docker secret.
 
 Token details:
 
@@ -95,6 +95,8 @@ npm run dev
 
 The server listens on `http://localhost:3008` by default and serves both the API and the small faucet page.
 
+For local worker testing, set `FAUCET_PRIVATE_KEY_FILE` to a file containing a dedicated faucet hot-wallet key. Direct secret environment variables remain supported for backward compatibility, but file-based secrets take precedence.
+
 Useful endpoints:
 
 - `GET /health`
@@ -110,11 +112,13 @@ Docker Compose is the recommended production runtime. It runs the service as the
 
 ```bash
 cp .env.example .env
-# Set FAUCET_PRIVATE_KEY, IP_HASH_SALT, ADMIN_TOKEN, and public URL settings in .env.
+# Provision the four files described in secrets/README.md.
 docker compose pull faucet
 docker compose up -d --no-build
 docker compose ps
 ```
+
+The production `.env` stores only ordinary configuration and host paths to secret files. Compose mounts those files read-only under `/run/secrets`; raw secret values are not included in the container environment. Keep production secret files outside the checkout with mode `0600`.
 
 For local development, replace the pull and start commands with `docker compose up -d --build` to build the image from the current checkout.
 
@@ -148,7 +152,7 @@ The workflow uses the repository-scoped `GITHUB_TOKEN`; no long-lived registry p
 1. Create or choose a faucet hot wallet.
 2. Transfer cWBTC from the issuer wallet to the faucet hot wallet.
 3. Deposit enough CKB into the faucet hot wallet. Each claim creates an xUDT cell and costs roughly 200 CKB of occupied capacity plus tx fees.
-4. Configure `.env` from `.env.example`.
+4. Provision the runtime secret files and configure their host paths in `.env`.
 5. Pull and start the Docker Compose service:
 
 ```bash

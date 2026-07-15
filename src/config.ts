@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import { readFileSync } from 'node:fs';
 
 type HashType = 'type' | 'data' | 'data1' | 'data2';
 
@@ -27,10 +28,38 @@ function listEnv(name: string, fallback: string[]): string[] {
     .filter(Boolean);
 }
 
+function secretEnv(name: string, fallback = '', allowEmptyFile = true): string {
+  const filePath = process.env[`${name}_FILE`]?.trim();
+  if (filePath) {
+    let value: string;
+    try {
+      value = readFileSync(filePath, 'utf8').trim();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'unknown read error';
+      throw new Error(`Unable to read ${name}_FILE at ${filePath}: ${message}`);
+    }
+    if (!value && !allowEmptyFile) {
+      throw new Error(`${name}_FILE at ${filePath} is empty`);
+    }
+    return value;
+  }
+  return process.env[name]?.trim() || fallback;
+}
+
 function privateKeyEnv(): string {
-  const raw = process.env.FAUCET_PRIVATE_KEY?.trim() ?? '';
+  const raw = secretEnv('FAUCET_PRIVATE_KEY', '', false);
   if (!raw) return '';
-  return raw.startsWith('0x') ? raw : `0x${raw}`;
+  const normalized = raw.startsWith('0x') ? raw : `0x${raw}`;
+  if (!/^0x[0-9a-fA-F]{64}$/.test(normalized)) {
+    throw new Error('FAUCET_PRIVATE_KEY must be a 32-byte hexadecimal private key');
+  }
+  return normalized;
+}
+
+const requireTurnstile = booleanEnv('REQUIRE_TURNSTILE', false);
+const turnstileSecretKey = secretEnv('TURNSTILE_SECRET_KEY');
+if (requireTurnstile && !turnstileSecretKey) {
+  throw new Error('TURNSTILE_SECRET_KEY_FILE or TURNSTILE_SECRET_KEY is required when Turnstile is enabled');
 }
 
 export const config = {
@@ -51,20 +80,19 @@ export const config = {
   globalDailyClaimLimit: numberEnv('GLOBAL_DAILY_CLAIM_LIMIT', 200),
 
   databasePath: process.env.DATABASE_PATH ?? './data/faucet.sqlite',
-  ipHashSalt: process.env.IP_HASH_SALT ?? 'local-dev-salt-change-me',
+  ipHashSalt: secretEnv('IP_HASH_SALT', 'local-dev-salt-change-me', false),
 
   workerEnabled: booleanEnv('WORKER_ENABLED', true),
   workerPollMs: numberEnv('WORKER_POLL_MS', 3000),
   txConfirmTimeoutMs: numberEnv('TX_CONFIRM_TIMEOUT_MS', 180000),
   txConfirmPollMs: numberEnv('TX_CONFIRM_POLL_MS', 3000),
 
-  requireTurnstile: booleanEnv('REQUIRE_TURNSTILE', false),
+  requireTurnstile,
   turnstileSiteKey: process.env.TURNSTILE_SITE_KEY ?? '',
-  turnstileSecretKey: process.env.TURNSTILE_SECRET_KEY ?? '',
-  turnstileVerifyUrl:
-    process.env.TURNSTILE_VERIFY_URL ?? 'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+  turnstileSecretKey,
+  turnstileVerifyUrl: process.env.TURNSTILE_VERIFY_URL ?? 'https://challenges.cloudflare.com/turnstile/v0/siteverify',
 
-  adminToken: process.env.ADMIN_TOKEN ?? '',
+  adminToken: secretEnv('ADMIN_TOKEN'),
 
   cwbtc: {
     symbol: 'cWBTC',
