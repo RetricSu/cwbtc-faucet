@@ -1,0 +1,9 @@
+node_modules/
+dist/
+data/
+.env
+.env.*
+!.env.example
+*.wallet.json
+npm-debug.log*
+.DS_Store

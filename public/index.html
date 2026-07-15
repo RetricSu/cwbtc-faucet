@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>cWBTC Testnet Faucet</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero">
+        <p class="eyebrow">CKB testnet</p>
+        <h1>cWBTC Faucet</h1>
+        <p class="lede">
+          Claim test cWBTC, a CKB UDT used as fake wrapped BTC for Fiber CCH demos.
+          It has no mainnet value.
+        </p>
+      </section>
+
+      <section class="panel">
+        <div class="stats">
+          <div>
+            <span>Claim amount</span>
+            <strong id="claim-amount">Loading...</strong>
+          </div>
+          <div>
+            <span>Faucet balance</span>
+            <strong id="faucet-balance">Loading...</strong>
+          </div>
+        </div>
+
+        <form id="claim-form">
+          <label for="address">CKB testnet address</label>
+          <input id="address" name="address" placeholder="ckt1..." autocomplete="off" required />
+          <div id="turnstile"></div>
+          <button type="submit">Claim cWBTC</button>
+        </form>
+
+        <div id="message" class="message" hidden></div>
+      </section>
+
+      <section class="details">
+        <h2>What this protects</h2>
+        <ul>
+          <li>One queued claim per address.</li>
+          <li>Address and IP cooldowns.</li>
+          <li>Persistent claim history in SQLite.</li>
+          <li>Serialized CKB transactions, confirmed before the next send.</li>
+          <li>Optional Cloudflare Turnstile for public deployments.</li>
+        </ul>
+      </section>
+    </main>
+    <script src="/app.js" type="module"></script>
+  </body>
+</html>
