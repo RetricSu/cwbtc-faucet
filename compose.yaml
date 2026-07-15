@@ -2,7 +2,7 @@ services:
   faucet:
     build:
       context: .
-    image: cwbtc-faucet:local
+    image: ${FAUCET_IMAGE:-ghcr.io/retricsu/cwbtc-faucet:latest}
     restart: unless-stopped
     init: true
     env_file: ${ENV_FILE:-.env}

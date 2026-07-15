@@ -106,14 +106,17 @@ Useful endpoints:
 
 ## Run With Docker
 
-Docker Compose is the recommended production runtime. It builds the TypeScript service, runs it as the unprivileged `node` user, checks `/health`, and persists SQLite state in the `faucet-data` volume.
+Docker Compose is the recommended production runtime. It runs the service as the unprivileged `node` user, checks `/health`, and persists SQLite state in the `faucet-data` volume.
 
 ```bash
 cp .env.example .env
 # Set FAUCET_PRIVATE_KEY, IP_HASH_SALT, ADMIN_TOKEN, and public URL settings in .env.
-docker compose up -d --build
+docker compose pull faucet
+docker compose up -d --no-build
 docker compose ps
 ```
+
+For local development, replace the pull and start commands with `docker compose up -d --build` to build the image from the current checkout.
 
 The service is exposed on port `3008`. Set `FAUCET_PORT` in `.env` when the host port needs to differ. SQLite lives at `/app/data/faucet.sqlite` inside the named volume and survives image replacement or container recreation.
 
@@ -130,9 +133,9 @@ Do not add `-v` to `docker compose down` unless the claim history is intentional
 
 ## Container Publishing
 
-GitHub Actions runs the TypeScript checks and publishes the image to GitHub Container Registry:
+GitHub Actions runs the TypeScript checks and publishes `ghcr.io/retricsu/cwbtc-faucet` to GitHub Container Registry:
 
-- pushes to the default branch publish `ghcr.io/<owner>/<repository>:latest` and an immutable `sha-*` tag
+- pushes to the default branch publish `ghcr.io/retricsu/cwbtc-faucet:latest` and an immutable `sha-*` tag
 - tags such as `v0.1.0` publish `0.1.0` and `0.1` image tags
 - pull requests run checks without publishing an image
 - every published image includes a GitHub artifact provenance attestation
@@ -145,10 +148,11 @@ The workflow uses the repository-scoped `GITHUB_TOKEN`; no long-lived registry p
 2. Transfer cWBTC from the issuer wallet to the faucet hot wallet.
 3. Deposit enough CKB into the faucet hot wallet. Each claim creates an xUDT cell and costs roughly 200 CKB of occupied capacity plus tx fees.
 4. Configure `.env` from `.env.example`.
-5. Start the Docker Compose service:
+5. Pull and start the Docker Compose service:
 
 ```bash
-docker compose up -d --build
+docker compose pull faucet
+docker compose up -d --no-build
 ```
 
 Monitor:

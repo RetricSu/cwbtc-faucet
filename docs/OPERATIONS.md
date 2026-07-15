@@ -118,7 +118,8 @@ The project uses `@ckb-ccc/ccc` for transaction building and signing because the
 ```bash
 cp .env.example .env
 # Fill in the production values, especially FAUCET_PRIVATE_KEY and IP_HASH_SALT.
-docker compose up -d --build
+docker compose pull faucet
+docker compose up -d --no-build
 docker compose ps
 ```
 
@@ -131,8 +132,8 @@ Useful operations:
 ```bash
 docker compose logs -f faucet
 docker compose restart faucet
-docker compose build --pull
-docker compose up -d
+docker compose pull faucet
+docker compose up -d --no-build
 docker compose down
 ```
 
