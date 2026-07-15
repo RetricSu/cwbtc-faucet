@@ -3,6 +3,7 @@ const message = document.querySelector('#message');
 const claimAmount = document.querySelector('#claim-amount');
 const faucetBalance = document.querySelector('#faucet-balance');
 const turnstileMount = document.querySelector('#turnstile');
+const copyButtons = document.querySelectorAll('[data-copy-target]');
 
 let turnstileToken = '';
 
@@ -10,6 +11,26 @@ function showMessage(text, kind = '') {
   message.hidden = false;
   message.className = `message ${kind}`.trim();
   message.textContent = text;
+}
+
+function wireCopyButtons() {
+  copyButtons.forEach((button) => {
+    button.addEventListener('click', async () => {
+      const targetId = button.getAttribute('data-copy-target');
+      const target = targetId ? document.getElementById(targetId) : null;
+      if (!target) return;
+      try {
+        await navigator.clipboard.writeText(target.textContent.trim());
+        const previous = button.textContent;
+        button.textContent = 'Copied';
+        setTimeout(() => {
+          button.textContent = previous;
+        }, 1200);
+      } catch {
+        button.textContent = 'Copy failed';
+      }
+    });
+  });
 }
 
 async function jsonFetch(url, options) {
@@ -91,3 +112,4 @@ form.addEventListener('submit', async (event) => {
 });
 
 await Promise.all([loadInfo(), loadBalance()]);
+wireCopyButtons();

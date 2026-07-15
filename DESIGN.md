@@ -15,6 +15,8 @@ Use OKLCH colors. Prefer tinted off-white surfaces, graphite text, green for suc
 - Form controls use standard browser affordances with strong focus states.
 - Status messages are inline, not modal.
 - Flow diagram uses labeled nodes and lines, not decorative icons.
+- Keep the first viewport on the subtle grid background. Use quieter plain sections below for reference material and code snippets.
+- Reference data should be scannable: compact key/value rows, copyable code blocks, and short setup steps.
 
 ## Copy Rules
 

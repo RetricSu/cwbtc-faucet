@@ -20,3 +20,4 @@ Clear, technical, restrained, and trustworthy. Avoid crypto hype, faux urgency, 
 - The page should promote Fiber CCH by explaining the end-to-end path, not by marketing slogans.
 - cWBTC must be described as a test UDT with no mainnet value.
 - Operational trust matters: show claim amount, balance, cooldown behavior, and transaction status plainly.
+- Developer utility matters more than faucet implementation details. The page should expose the UDT type script, Fiber CCH config, and public Bottle node information directly.
