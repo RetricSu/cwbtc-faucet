@@ -104,17 +104,51 @@ Useful endpoints:
 - `GET /api/claims/:id`
 - `GET /api/admin/summary` with `Authorization: Bearer $ADMIN_TOKEN`
 
+## Run With Docker
+
+Docker Compose is the recommended production runtime. It builds the TypeScript service, runs it as the unprivileged `node` user, checks `/health`, and persists SQLite state in the `faucet-data` volume.
+
+```bash
+cp .env.example .env
+# Set FAUCET_PRIVATE_KEY, IP_HASH_SALT, ADMIN_TOKEN, and public URL settings in .env.
+docker compose up -d --build
+docker compose ps
+```
+
+The service is exposed on port `3008`. Set `FAUCET_PORT` in `.env` when the host port needs to differ. SQLite lives at `/app/data/faucet.sqlite` inside the named volume and survives image replacement or container recreation.
+
+Run exactly one worker-enabled replica. The current queue and SQLite database are designed for one serialized CKB sender; horizontal scaling requires a shared database and a distributed worker lock.
+
+To inspect logs or stop the service:
+
+```bash
+docker compose logs -f faucet
+docker compose down
+```
+
+Do not add `-v` to `docker compose down` unless the claim history is intentionally being deleted.
+
+## Container Publishing
+
+GitHub Actions runs the TypeScript checks and publishes the image to GitHub Container Registry:
+
+- pushes to the default branch publish `ghcr.io/<owner>/<repository>:latest` and an immutable `sha-*` tag
+- tags such as `v0.1.0` publish `0.1.0` and `0.1` image tags
+- pull requests run checks without publishing an image
+- every published image includes a GitHub artifact provenance attestation
+
+The workflow uses the repository-scoped `GITHUB_TOKEN`; no long-lived registry password is required. For predictable production deploys, use the `sha-*` tag or image digest rather than `latest`.
+
 ## Deployment Notes
 
 1. Create or choose a faucet hot wallet.
 2. Transfer cWBTC from the issuer wallet to the faucet hot wallet.
 3. Deposit enough CKB into the faucet hot wallet. Each claim creates an xUDT cell and costs roughly 200 CKB of occupied capacity plus tx fees.
 4. Configure `.env` from `.env.example`.
-5. Run `npm run build`.
-6. Start with PM2 or systemd:
+5. Start the Docker Compose service:
 
 ```bash
-pm2 start npm --name cwbtc-faucet -- start
+docker compose up -d --build
 ```
 
 Monitor:

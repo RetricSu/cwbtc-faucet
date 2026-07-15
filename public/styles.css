@@ -482,7 +482,7 @@ pre code {
 }
 
 .connect-section {
-  padding-bottom: 72px;
+  padding: 44px clamp(20px, 2.4vw, 32px) 72px;
   background: var(--surface);
 }
 
@@ -628,5 +628,9 @@ pre code {
 
   .setup-step {
     gap: 12px;
+  }
+
+  .connect-section {
+    padding-inline: 16px;
   }
 }

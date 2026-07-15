@@ -113,14 +113,38 @@ If abuse appears, add one of:
 
 The project uses `@ckb-ccc/ccc` for transaction building and signing because the original cWBTC issuance scripts already use it. `npm audit --omit=dev` currently reports low-severity transitive findings from CCC's wallet adapter dependency chain. Recheck before public launch and upgrade CCC when a clean release is available.
 
-## Deployment Sketch
+## Docker Deployment
 
 ```bash
-npm ci
-npm run build
-pm2 start npm --name cwbtc-faucet -- start
-pm2 save
+cp .env.example .env
+# Fill in the production values, especially FAUCET_PRIVATE_KEY and IP_HASH_SALT.
+docker compose up -d --build
+docker compose ps
 ```
+
+The container runs as the unprivileged `node` user. Compose overrides `DATABASE_PATH` to `/app/data/faucet.sqlite` and mounts the named `faucet-data` volume there. Keep that volume during deploys because it contains claim history, cooldowns, and in-flight transaction state.
+
+Run exactly one replica with `WORKER_ENABLED=true`. The SQLite queue and sender are intentionally single-process. Do not use `docker compose up --scale faucet=...`; a multi-replica deployment needs a shared database and a distributed worker lock first.
+
+Useful operations:
+
+```bash
+docker compose logs -f faucet
+docker compose restart faucet
+docker compose build --pull
+docker compose up -d
+docker compose down
+```
+
+Back up the SQLite database before host migration or a destructive maintenance operation:
+
+```bash
+docker compose exec faucet node -e \
+  "const Database=require('better-sqlite3'); new Database('/app/data/faucet.sqlite').backup('/app/data/faucet-backup.sqlite')"
+docker compose cp faucet:/app/data/faucet-backup.sqlite ./faucet-backup.sqlite
+```
+
+Never run `docker compose down -v` during routine deploys. The `-v` option deletes the named volume and all faucet state.
 
 Use a reverse proxy for TLS and set:
 

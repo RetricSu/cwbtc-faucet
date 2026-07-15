@@ -1,0 +1,19 @@
+services:
+  faucet:
+    build:
+      context: .
+    image: cwbtc-faucet:local
+    restart: unless-stopped
+    init: true
+    env_file: ${ENV_FILE:-.env}
+    environment:
+      HOST: 0.0.0.0
+      PORT: 3008
+      DATABASE_PATH: /app/data/faucet.sqlite
+    ports:
+      - "${FAUCET_PORT:-3008}:3008"
+    volumes:
+      - faucet-data:/app/data
+
+volumes:
+  faucet-data:
