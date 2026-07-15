@@ -54,7 +54,7 @@ async function pollClaim(id) {
   for (;;) {
     const claim = await jsonFetch(`/api/claims/${id}`);
     if (claim.status === 'confirmed') {
-      showMessage(`Confirmed: ${claim.amount_display}. Tx: ${claim.tx_hash}`, 'success');
+      showMessage(`Claim confirmed: ${claim.amount_display}. CKB tx: ${claim.tx_hash}`, 'success');
       await loadBalance();
       return;
     }
@@ -62,7 +62,7 @@ async function pollClaim(id) {
       showMessage(`Claim failed: ${claim.error || 'unknown error'}`, 'error');
       return;
     }
-    showMessage(`Claim ${claim.status}. Waiting for CKB confirmation...`);
+    showMessage(`Claim ${claim.status}. Waiting for CKB confirmation.`);
     await new Promise((resolve) => setTimeout(resolve, 3000));
   }
 }
@@ -81,7 +81,7 @@ form.addEventListener('submit', async (event) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
-    showMessage(`Queued claim ${claim.id}.`);
+    showMessage(`Claim queued. Reference: ${claim.id}.`);
     await pollClaim(claim.id);
   } catch (err) {
     showMessage(err.message || 'Claim failed', 'error');
