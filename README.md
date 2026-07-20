@@ -111,14 +111,15 @@ Useful endpoints:
 Docker Compose is the recommended production runtime. It runs the service as the unprivileged `node` user, checks `/health`, and persists SQLite state in the `faucet-data` volume.
 
 ```bash
-cp .env.example .env
-# Provision the four files described in secrets/README.md.
-docker compose pull faucet
-docker compose up -d --no-build
+./scripts/init.sh
+# Fund the printed address with testnet cWBTC and CKB first.
+docker compose up -d --pull always --no-build
 docker compose ps
 ```
 
-The production `.env` stores only ordinary configuration and host paths to secret files. Compose mounts those files read-only under `/run/secrets`; raw secret values are not included in the container environment. Keep production secret files outside the checkout with mode `0600`.
+The initializer copies `.env.example` to `.env`, creates a dedicated faucet hot wallet, and generates the other runtime secrets. It is safe to rerun and does not overwrite existing values. It prints only the public CKB testnet address; the private key stays in `secrets/faucet_private_key` with mode `0600`.
+
+Before a public launch, set `PUBLIC_BASE_URL` and `CORS_ORIGIN` in `.env`. Compose mounts the secret files read-only under `/run/secrets`; raw secret values are not included in the container environment. For a production host, the same files can later be moved to the team's secret manager without changing the application.
 
 For local development, replace the pull and start commands with `docker compose up -d --build` to build the image from the current checkout.
 
@@ -149,15 +150,13 @@ The workflow uses the repository-scoped `GITHUB_TOKEN`; no long-lived registry p
 
 ## Deployment Notes
 
-1. Create or choose a faucet hot wallet.
-2. Transfer cWBTC from the issuer wallet to the faucet hot wallet.
-3. Deposit enough CKB into the faucet hot wallet. Each claim creates an xUDT cell and costs roughly 200 CKB of occupied capacity plus tx fees.
-4. Provision the runtime secret files and configure their host paths in `.env`.
-5. Pull and start the Docker Compose service:
+1. Run `./scripts/init.sh` and copy the printed public faucet address.
+2. Transfer cWBTC from the issuer wallet to that address.
+3. Deposit enough CKB into the address. Each claim creates an xUDT cell and costs roughly 200 CKB of occupied capacity plus tx fees.
+4. Set the public URL values in `.env`, then start the service:
 
 ```bash
-docker compose pull faucet
-docker compose up -d --no-build
+docker compose up -d --pull always --no-build
 ```
 
 Monitor:
