@@ -134,7 +134,7 @@ docker compose up -d --pull always --no-build
 docker compose ps
 ```
 
-The generated secret files live under `secrets/`, are ignored by Git, and use mode `0600`. Teams with a host secret directory or secret manager can move them later and update the four `*_SECRET_FILE` paths in `.env`; this is not required for the first deployment.
+The generated secret files live under `secrets/` and are ignored by Git. The directory uses mode `0700`; files inside use mode `0644` so Docker Compose can mount them into the unprivileged `node` container. Teams with a host secret directory or secret manager can move them later and update the four `*_SECRET_FILE` paths in `.env`; this is not required for the first deployment.
 
 The container runs as the unprivileged `node` user. Compose mounts secrets read-only under `/run/secrets`, overrides `DATABASE_PATH` to `/app/data/faucet.sqlite`, and mounts the named `faucet-data` volume there. Keep that volume during deploys because it contains claim history, cooldowns, and in-flight transaction state.
 
@@ -165,7 +165,7 @@ Never run `docker compose down -v` during routine deploys. The `-v` option delet
 1. Stop the faucet so no transfer is in flight.
 2. Create a new dedicated faucet wallet.
 3. Transfer the old wallet's remaining cWBTC and CKB capacity to the new address.
-4. Replace the host `faucet_private_key` secret file atomically and keep mode `0600`.
+4. Replace the host `faucet_private_key` secret file atomically and keep it under a private directory. If it is mounted by Docker Compose into this unprivileged container, the file itself must be readable by the container user.
 5. Start the faucet and verify `/api/balance` reports `configured: true`.
 
 If compromise is suspected, stop the container first and sweep the hot-wallet funds immediately. Routine faucet-key rotation never requires the issuer key.

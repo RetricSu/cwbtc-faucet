@@ -72,7 +72,8 @@ if [ ! -e "$SECRETS_DIR/turnstile_secret_key" ]; then
   : >"$SECRETS_DIR/turnstile_secret_key"
 fi
 
-chmod 600 .env "$SECRETS_DIR"/*
+chmod 600 .env
+chmod 644 "$SECRETS_DIR"/*
 
 echo "Deployment files are ready."
 if [ -s "$SECRETS_DIR/faucet_address" ]; then

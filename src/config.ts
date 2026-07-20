@@ -57,7 +57,7 @@ function privateKeyEnv(): string {
 }
 
 const requireTurnstile = booleanEnv('REQUIRE_TURNSTILE', false);
-const turnstileSecretKey = secretEnv('TURNSTILE_SECRET_KEY');
+const turnstileSecretKey = requireTurnstile ? secretEnv('TURNSTILE_SECRET_KEY') : '';
 if (requireTurnstile && !turnstileSecretKey) {
   throw new Error('TURNSTILE_SECRET_KEY_FILE or TURNSTILE_SECRET_KEY is required when Turnstile is enabled');
 }
