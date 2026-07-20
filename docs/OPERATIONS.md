@@ -13,13 +13,13 @@ Operators do not need the issuer key. Never commit issuer files, runtime secret 
 
 ## Funding The Faucet
 
-1. Create a hot wallet private key and derive its CKB testnet address.
+1. Initialize the deployment and copy the public address it prints:
 
 ```bash
-npm run wallet:create
+./scripts/init.sh
 ```
 
-Store the output securely. The `privateKey` becomes the contents of the `faucet_private_key` secret file; the `address` is what you fund.
+The private key is written directly to the ignored `secrets/faucet_private_key` file and is never printed to the terminal.
 
 2. Transfer cWBTC from the issuer wallet to the hot wallet. The existing local issuer project has a working script:
 
@@ -29,7 +29,6 @@ npm run send-cwbtc -- <hot-wallet-ckt-address>=10000
 ```
 
 3. Deposit CKB testnet capacity to the hot wallet. `offckb deposit` is fine for testnet.
-4. Provision the hot wallet private key into the host secret file referenced by `FAUCET_PRIVATE_KEY_SECRET_FILE`. Do not put the value in `.env`.
 
 Each successful claim creates a recipient xUDT cell. Budget roughly `200 CKB` occupied capacity per claim plus fees. cWBTC itself is abundant; CKB capacity is the resource that will run out first.
 
@@ -115,33 +114,27 @@ The project uses `@ckb-ccc/ccc` for transaction building and signing because the
 
 ## Docker Deployment
 
-Create a secret directory owned by the deployment account. Generate the non-wallet secrets without printing them to the terminal, then provision the faucet key and optional Turnstile key through the team's password manager or secret-management tool.
+Run the initializer from the repository checkout:
 
 ```bash
-sudo install -d -m 700 -o "$USER" -g "$(id -gn)" /etc/cwbtc-faucet/secrets
-sh -c 'umask 077; openssl rand -hex 32 > /etc/cwbtc-faucet/secrets/ip_hash_salt'
-sh -c 'umask 077; openssl rand -hex 32 > /etc/cwbtc-faucet/secrets/admin_token'
-sh -c 'umask 077; : > /etc/cwbtc-faucet/secrets/turnstile_secret_key'
+./scripts/init.sh
 ```
 
-The deployment account must be able to read these files. Keep every secret file at mode `0600`. Copy the configuration template, then set the host paths in `.env`; `.env` itself contains no secret values:
+It creates `.env`, a dedicated faucet hot wallet, the IP hash salt, the admin token, and an empty optional Turnstile secret. Existing files are never overwritten. The command prints only the public faucet address; send that address to the cWBTC custodian for funding and deposit testnet CKB capacity into it.
 
-```bash
-cp .env.example .env
-```
+For a public domain, update these ordinary values in `.env`:
 
 ```env
-FAUCET_PRIVATE_KEY_SECRET_FILE=/etc/cwbtc-faucet/secrets/faucet_private_key
-IP_HASH_SALT_SECRET_FILE=/etc/cwbtc-faucet/secrets/ip_hash_salt
-ADMIN_TOKEN_SECRET_FILE=/etc/cwbtc-faucet/secrets/admin_token
-TURNSTILE_SECRET_KEY_SECRET_FILE=/etc/cwbtc-faucet/secrets/turnstile_secret_key
+PUBLIC_BASE_URL=https://<faucet-domain>
+CORS_ORIGIN=https://<faucet-domain>
 ```
 
 ```bash
-docker compose pull faucet
-docker compose up -d --no-build
+docker compose up -d --pull always --no-build
 docker compose ps
 ```
+
+The generated secret files live under `secrets/`, are ignored by Git, and use mode `0600`. Teams with a host secret directory or secret manager can move them later and update the four `*_SECRET_FILE` paths in `.env`; this is not required for the first deployment.
 
 The container runs as the unprivileged `node` user. Compose mounts secrets read-only under `/run/secrets`, overrides `DATABASE_PATH` to `/app/data/faucet.sqlite`, and mounts the named `faucet-data` volume there. Keep that volume during deploys because it contains claim history, cooldowns, and in-flight transaction state.
 
