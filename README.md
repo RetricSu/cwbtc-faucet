@@ -117,7 +117,7 @@ docker compose up -d --pull always --no-build
 docker compose ps
 ```
 
-The initializer copies `.env.example` to `.env`, creates a dedicated faucet hot wallet, and generates the other runtime secrets. It is safe to rerun and does not overwrite existing values. It prints only the public CKB testnet address; the private key stays in `secrets/faucet_private_key` with mode `0600`.
+The initializer copies `.env.example` to `.env`, creates a dedicated faucet hot wallet, and generates the other runtime secrets. It is safe to rerun and does not overwrite existing values. It prints only the public CKB testnet address; the private key stays in `secrets/faucet_private_key`. The `secrets/` directory uses mode `0700`; files inside use mode `0644` so Docker Compose can mount them into the unprivileged container.
 
 Before a public launch, set `PUBLIC_BASE_URL` and `CORS_ORIGIN` in `.env`. Compose mounts the secret files read-only under `/run/secrets`; raw secret values are not included in the container environment. For a production host, the same files can later be moved to the team's secret manager without changing the application.
 

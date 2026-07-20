@@ -9,4 +9,4 @@ Run `./scripts/init.sh` from the repository root to create them automatically. T
 - `admin_token`: bearer token for the admin summary endpoint; an empty file leaves the endpoint inaccessible
 - `turnstile_secret_key`: Cloudflare Turnstile secret; it may be empty while `REQUIRE_TURNSTILE=false`
 
-For production, keep these files outside the repository, set their paths in `.env`, and restrict them to the deployment user with mode `0600`. Never use the cWBTC issuer private key as `faucet_private_key`.
+For production, keep these files outside the repository, set their paths in `.env`, and restrict their parent directory to the deployment user. When Docker Compose mounts host files into the unprivileged container, the files themselves must be readable by that container user. Never use the cWBTC issuer private key as `faucet_private_key`.
