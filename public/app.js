@@ -100,5 +100,8 @@ form.addEventListener('submit', async (event) => {
   }
 });
 
-await loadInfo();
+try {
+  await loadInfo();
+} catch {
+}
 wireCopyButtons();
