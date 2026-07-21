@@ -1,7 +1,6 @@
 const form = document.querySelector('#claim-form');
 const message = document.querySelector('#message');
 const claimAmount = document.querySelector('#claim-amount');
-const faucetBalance = document.querySelector('#faucet-balance');
 const turnstileMount = document.querySelector('#turnstile');
 const copyButtons = document.querySelectorAll('[data-copy-target]');
 
@@ -62,21 +61,11 @@ async function loadInfo() {
   }
 }
 
-async function loadBalance() {
-  try {
-    const balance = await jsonFetch('/api/balance');
-    faucetBalance.textContent = balance.configured ? balance.cwbtc_display : 'Not configured';
-  } catch {
-    faucetBalance.textContent = 'Unavailable';
-  }
-}
-
 async function pollClaim(id) {
   for (;;) {
     const claim = await jsonFetch(`/api/claims/${id}`);
     if (claim.status === 'confirmed') {
       showMessage(`Claim confirmed: ${claim.amount_display}. CKB tx: ${claim.tx_hash}`, 'success');
-      await loadBalance();
       return;
     }
     if (claim.status === 'failed') {
@@ -111,5 +100,8 @@ form.addEventListener('submit', async (event) => {
   }
 });
 
-await Promise.all([loadInfo(), loadBalance()]);
+try {
+  await loadInfo();
+} catch {
+}
 wireCopyButtons();
