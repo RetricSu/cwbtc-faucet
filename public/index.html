@@ -3,214 +3,87 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Fiber CCH cWBTC Faucet</title>
+    <title>Get cWBTC for Fiber CCH Testing</title>
+    <meta
+      name="description"
+      content="Request test-only cWBTC for Fiber CCH development on CKB testnet."
+    />
     <link rel="stylesheet" href="/styles.css" />
   </head>
-  <body>
+  <body class="faucet-page">
     <header class="topbar" aria-label="Site header">
       <a class="mark" href="/">
         <span class="mark-symbol" aria-hidden="true">F</span>
         <span>
           <strong>Fiber CCH</strong>
-          <small>testnet faucet</small>
+          <small>CKB testnet tool</small>
         </span>
       </a>
       <nav class="nav-links" aria-label="Useful links">
-        <a href="#flow">Flow</a>
-        <a href="#token">Token</a>
-        <a href="#connect">Connect</a>
+        <a href="/guide.html">Developer guide</a>
+        <a href="https://github.com/RetricSu/cwbtc-faucet" rel="noreferrer">Source</a>
         <a href="https://github.com/nervosnetwork/fiber" rel="noreferrer">Fiber</a>
       </nav>
     </header>
 
-    <main>
-      <section class="intro" aria-labelledby="page-title">
-        <div class="intro-copy">
-          <p class="eyebrow">CKB testnet asset</p>
-          <h1 id="page-title">Claim cWBTC for Fiber CCH testing</h1>
-          <p class="lede">
-            cWBTC is a regular CKB UDT used here as fake wrapped BTC. Use it to test
-            Fiber Cross-Chain Hub payments from CKB UDT channels into Lightning testnet invoices.
-          </p>
-          <div class="notice" role="note">
-            Testnet only. cWBTC has no mainnet value and is issued only for this demo environment.
-          </div>
-        </div>
-
-        <section class="claim-panel" aria-labelledby="claim-title">
+    <main class="faucet-main">
+      <section class="faucet-shell" aria-labelledby="claim-title">
+        <section class="claim-panel">
           <div class="panel-head">
             <div>
-              <p class="section-label">Faucet</p>
-              <h2 id="claim-title">Get test cWBTC</h2>
+              <p class="section-label">CKB testnet</p>
+              <h1 id="claim-title">Request test cWBTC</h1>
             </div>
             <span class="status-pill">testnet</span>
           </div>
 
           <dl class="faucet-meta">
             <div>
-              <dt>Claim amount</dt>
+              <dt>Amount per request</dt>
               <dd id="claim-amount">Loading...</dd>
             </div>
           </dl>
 
           <form id="claim-form">
-            <label for="address">CKB testnet address</label>
+            <label for="address">Destination CKB testnet address</label>
             <div class="input-row">
-              <input id="address" name="address" placeholder="ckt1..." autocomplete="off" required />
-              <button type="submit">Claim</button>
+              <input
+                id="address"
+                name="address"
+                placeholder="ckt1..."
+                autocomplete="off"
+                aria-describedby="address-help"
+                required
+              />
+              <button type="submit">Request tokens</button>
             </div>
+            <p id="address-help" class="field-help">
+              Enter a public CKB testnet address only. Never enter a private key, seed phrase,
+              password, or payment information. This service does not connect to or sign with your wallet.
+            </p>
             <div id="turnstile"></div>
           </form>
 
           <div id="message" class="message" hidden></div>
+
+          <a class="guide-link" href="/guide.html">
+            <span>How do I test cWBTC with Fiber CCH?</span>
+            <strong>Open developer guide</strong>
+          </a>
         </section>
       </section>
-
-      <section id="flow" class="flow-section" aria-labelledby="flow-title">
-        <div class="section-copy">
-          <p class="section-label">Why this token exists</p>
-          <h2 id="flow-title">A test asset for the CCH payment path</h2>
-          <p>
-            Fiber CCH treats this UDT as wrapped BTC by convention: one raw cWBTC unit
-            maps to one satoshi in the demo. That lets developers exercise the route
-            without touching mainnet BTC.
-          </p>
-        </div>
-
-        <div class="flow-visual" aria-label="CKB UDT to Fiber CCH to Lightning invoice flow">
-          <div class="flow-node">
-            <span>01</span>
-            <strong>Claim cWBTC</strong>
-            <small>CKB testnet UDT</small>
-          </div>
-          <div class="flow-line" aria-hidden="true"></div>
-          <div class="flow-node">
-            <span>02</span>
-            <strong>Open Fiber channel</strong>
-            <small>UDT channel liquidity</small>
-          </div>
-          <div class="flow-line" aria-hidden="true"></div>
-          <div class="flow-node">
-            <span>03</span>
-            <strong>Pay Lightning</strong>
-            <small>CCH forwards to BTC testnet</small>
-          </div>
-        </div>
-      </section>
-
-      <section id="token" class="reference-section" aria-labelledby="token-title">
-        <div class="section-copy">
-          <p class="section-label">Token reference</p>
-          <h2 id="token-title">cWBTC token details</h2>
-          <p>
-            Add this token to your Fiber UDT whitelist before opening cWBTC channels.
-            For CCH demos, configure the same type script as the wrapped BTC asset.
-          </p>
-        </div>
-
-        <div class="reference-grid">
-          <dl class="spec-list">
-            <div><dt>Network</dt><dd>CKB testnet</dd></div>
-            <div><dt>Symbol</dt><dd>cWBTC</dd></div>
-            <div><dt>Decimals</dt><dd>8</dd></div>
-            <div><dt>Demo unit</dt><dd>1 raw unit = 1 satoshi</dd></div>
-          </dl>
-
-          <article class="code-card">
-            <div class="code-card-head">
-              <h3>Type script</h3>
-              <button class="copy-button" type="button" data-copy-target="type-script-code">Copy</button>
-            </div>
-            <pre id="type-script-code"><code>{
-  "code_hash": "0x25c29dc317811a6f6f3985a7a9ebc4838bd388d19d0feeecf0bcd60f6c0975bb",
-  "hash_type": "type",
-  "args": "0x9a1086531ed6dc69e0bd44cef5278e03faf3015b31aff60b08fb87663ce8507100000000"
-}</code></pre>
-          </article>
-
-          <article class="code-card">
-            <div class="code-card-head">
-              <h3>Cell dep</h3>
-              <button class="copy-button" type="button" data-copy-target="cell-dep-code">Copy</button>
-            </div>
-            <pre id="cell-dep-code"><code>{
-  "out_point": {
-    "tx_hash": "0xbf6fb538763efec2a70a6a3dcb7242787087e1030c4e7d86585bc63a9d337f5f",
-    "index": "0x0"
-  },
-  "dep_type": "code"
-}</code></pre>
-          </article>
-        </div>
-      </section>
-
-      <section id="connect" class="connect-section" aria-labelledby="connect-title">
-        <div class="section-copy">
-          <p class="section-label">Use it with Fiber CCH</p>
-          <h2 id="connect-title">Connect to Bottle and open a cWBTC channel</h2>
-          <p>
-            Bottle is the public Fiber testnet node used by the CCH demo. It is configured
-            to accept cWBTC channels, so developers can connect by pubkey and open a UDT channel
-            without operating a public relay first.
-          </p>
-        </div>
-
-        <div class="connect-layout">
-          <article class="node-card">
-            <p class="section-label">Public node</p>
-            <h3>fiber-testnet-public-bottle</h3>
-            <dl class="node-facts">
-              <div>
-                <dt>Pubkey</dt>
-                <dd><code>02b6d4e3ab86a2ca2fad6fae0ecb2e1e559e0b911939872a90abdda6d20302be71</code></dd>
-              </div>
-              <div>
-                <dt>Channel policy</dt>
-                <dd>Auto-accepts cWBTC UDT channels for testnet demos.</dd>
-              </div>
-            </dl>
-          </article>
-
-          <article class="setup-card">
-            <div class="setup-step">
-              <span>01</span>
-              <div>
-                <h3>Whitelist cWBTC</h3>
-                <pre><code>ckb:
-  udt_whitelist:
-    - name: "cWBTC"
-      script:
-        code_hash: "0x25c29dc317811a6f6f3985a7a9ebc4838bd388d19d0feeecf0bcd60f6c0975bb"
-        hash_type: type
-        args: "^0x9a1086531ed6dc69e0bd44cef5278e03faf3015b31aff60b08fb87663ce8507100000000$"
-      auto_accept_amount: 1000000000</code></pre>
-              </div>
-            </div>
-
-            <div class="setup-step">
-              <span>02</span>
-              <div>
-                <h3>Enable CCH wrapped BTC</h3>
-                <pre><code>cch:
-  wrapped_btc_type_script_args: "0x9a1086531ed6dc69e0bd44cef5278e03faf3015b31aff60b08fb87663ce8507100000000"</code></pre>
-              </div>
-            </div>
-
-            <div class="setup-step">
-              <span>03</span>
-              <div>
-                <h3>Connect to Bottle</h3>
-                <pre><code>fnn-cli peer connect_peer \
-  --pubkey 02b6d4e3ab86a2ca2fad6fae0ecb2e1e559e0b911939872a90abdda6d20302be71</code></pre>
-                <p class="footnote">
-                  Fiber v0.8.0 and newer can connect by pubkey after graph data resolves the public node address.
-                </p>
-              </div>
-            </div>
-          </article>
-        </div>
-      </section>
     </main>
+
+    <footer class="site-footer">
+      <p>
+        Open-source developer infrastructure for CKB testnet. cWBTC is a test token with no monetary value.
+      </p>
+      <nav aria-label="Project references">
+        <a href="/guide.html">Developer guide</a>
+        <a href="https://github.com/RetricSu/cwbtc-faucet" rel="noreferrer">Source code</a>
+        <a href="https://docs.nervos.org/" rel="noreferrer">Nervos docs</a>
+      </nav>
+    </footer>
     <script src="/app.js" type="module"></script>
   </body>
 </html>

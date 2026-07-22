@@ -2,6 +2,7 @@ import { ccc } from '@ckb-ccc/ccc';
 import { config } from '../config.js';
 import { parseUdtAmount } from './amount.js';
 import { collectCellsByLock } from './rpc.js';
+import { sameScript, sameScriptType } from './script.js';
 import type { LiveCell, Script } from './types.js';
 
 const WBTC_TYPE_SCRIPT: Script = config.cwbtc.typeScript;
@@ -31,10 +32,6 @@ export async function getFaucetAddress(): Promise<string | null> {
 export async function getFaucetLockScript(): Promise<Script> {
   const signer = new ccc.SignerCkbPrivateKey(getClient(), faucetPrivateKey());
   return (await signer.getAddressObjSecp256k1()).script;
-}
-
-function sameScript(a: Script, b: Script): boolean {
-  return a.codeHash === b.codeHash && a.hashType === b.hashType && a.args === b.args;
 }
 
 async function collectWbtcCells(faucetLockScript: Script): Promise<WbtcCell[]> {
@@ -96,7 +93,7 @@ export async function transferCwbtc(recipientAddress: string, amountRaw: bigint)
   const faucetLockScript = (await signer.getAddressObjSecp256k1()).script;
   const recipientLock = (await ccc.Address.fromString(recipientAddress, client)).script;
 
-  if (!sameScript(recipientLock, faucetLockScript)) {
+  if (!sameScriptType(recipientLock, faucetLockScript)) {
     throw new Error('Recipient must be a CKB testnet secp256k1 address');
   }
 

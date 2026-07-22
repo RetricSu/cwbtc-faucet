@@ -112,6 +112,20 @@ If abuse appears, add one of:
 
 The project uses `@ckb-ccc/ccc` for transaction building and signing because the original cWBTC issuance scripts already use it. `npm audit --omit=dev` currently reports low-severity transitive findings from CCC's wallet adapter dependency chain. Recheck before public launch and upgrade CCC when a clean release is available.
 
+## Safe Browsing Review
+
+The public page asks only for a public CKB testnet address. It never asks for a private key, seed phrase, password, wallet signature, download, or payment information. The source code is public and linked from the page.
+
+If the domain receives a Google Safe Browsing warning:
+
+1. Compare the deployed HTML and JavaScript with the release image or repository to rule out injected content.
+2. Inspect the domain in Google Search Console under **Security issues** and check every example URL and embedded third-party resource.
+3. After confirming the deployment is clean, request a security review in Search Console. If the warning is an incorrect phishing classification, also use Google's [incorrect phishing warning report](https://safebrowsing.google.com/safebrowsing/report_error/).
+
+Copy for the review request:
+
+> This is an open-source CKB testnet developer service. It accepts only a public `ckt1...` blockchain address and sends a test-only token with no monetary value. It never requests private keys, seed phrases, passwords, wallet signatures, downloads, or payment information. We verified the deployed HTML and JavaScript against the public repository and found no injected or third-party deceptive content.
+
 ## Docker Deployment
 
 Run the initializer from the repository checkout:
