@@ -17,7 +17,7 @@ Clear, technical, restrained, and trustworthy. Avoid crypto hype, faux urgency, 
 ## Product Principles
 
 - The claim flow is the primary action.
-- The page should promote Fiber CCH by explaining the end-to-end path, not by marketing slogans.
+- The homepage should stay focused on requesting test cWBTC. Fiber CCH context and setup belong in the linked developer guide.
 - cWBTC must be described as a test UDT with no mainnet value.
 - Operational trust matters: show claim amount, balance, cooldown behavior, and transaction status plainly.
-- Developer utility matters more than faucet implementation details. The page should expose the UDT type script, Fiber CCH config, and public Bottle node information directly.
+- Developer utility matters more than faucet implementation details. The guide should expose the UDT type script, Fiber CCH config, and public Bottle node information directly.

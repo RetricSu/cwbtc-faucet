@@ -40,6 +40,10 @@ body::before {
   background-size: 44px 44px;
 }
 
+.faucet-page::before {
+  height: 100%;
+}
+
 .topbar,
 main,
 .site-footer {
@@ -104,16 +108,15 @@ main,
   color: var(--ink);
 }
 
-.intro {
+.faucet-main {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(380px, 460px);
-  gap: clamp(32px, 6vw, 72px);
-  align-items: start;
-  padding: clamp(48px, 8vw, 96px) 0 56px;
+  min-height: calc(100vh - 190px);
+  place-items: center;
+  padding: clamp(40px, 8vh, 84px) 0;
 }
 
-.intro-copy {
-  max-width: 690px;
+.faucet-shell {
+  width: min(100%, 620px);
 }
 
 .eyebrow,
@@ -126,11 +129,25 @@ main,
   text-transform: uppercase;
 }
 
-h1 {
+.guide-intro {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: clamp(28px, 6vw, 72px);
+  align-items: end;
+  padding: clamp(52px, 8vw, 96px) 0 56px;
+}
+
+.guide-intro h1 {
   margin: 0;
-  max-width: 12ch;
-  font-size: clamp(56px, 8vw, 100px);
-  line-height: 0.9;
+  font-size: clamp(44px, 7vw, 76px);
+  line-height: 0.96;
+  letter-spacing: 0;
+}
+
+.claim-panel h1 {
+  margin: 0;
+  font-size: 30px;
+  line-height: 1.1;
   letter-spacing: 0;
 }
 
@@ -143,22 +160,28 @@ h2 {
 
 .lede {
   max-width: 66ch;
-  margin: 24px 0 0;
+  margin: 20px 0 0;
   color: var(--muted);
-  font-size: 21px;
+  font-size: 19px;
   line-height: 1.5;
 }
 
-.notice {
-  width: fit-content;
-  max-width: 620px;
-  margin-top: 28px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: color-mix(in oklch, var(--amber) 11%, var(--surface));
+.secondary-action {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  border: 1px solid var(--line-strong);
+  border-radius: 6px;
+  background: var(--surface);
   color: var(--ink);
+  font-weight: 800;
   padding: 10px 14px;
-  font-size: 14px;
+  text-decoration: none;
+}
+
+.secondary-action:hover {
+  border-color: var(--accent-dark);
+  color: var(--accent-dark);
 }
 
 .claim-panel {
@@ -166,7 +189,7 @@ h2 {
   border-radius: 8px;
   background: var(--surface);
   box-shadow: 10px 10px 0 color-mix(in oklch, var(--ink) 12%, transparent);
-  padding: 24px;
+  padding: clamp(24px, 4vw, 32px);
 }
 
 .panel-head {
@@ -300,6 +323,33 @@ button:disabled {
 .message.success {
   border-color: color-mix(in oklch, var(--accent) 60%, var(--line));
   color: var(--accent-dark);
+}
+
+.guide-link {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 20px;
+  margin-top: 24px;
+  border-top: 1px solid var(--line);
+  color: var(--ink);
+  padding-top: 18px;
+  text-decoration: none;
+}
+
+.guide-link span {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.guide-link strong {
+  color: var(--accent-dark);
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+.guide-link:hover strong {
+  color: var(--accent);
 }
 
 .flow-section,
@@ -597,6 +647,7 @@ pre code {
   .topbar,
   .nav-links,
   .input-row,
+  .guide-intro,
   .flow-section,
   .reference-section,
   .connect-layout,
@@ -613,17 +664,22 @@ pre code {
     display: none;
   }
 
-  .intro {
-    grid-template-columns: 1fr;
-    padding-top: 34px;
+  .faucet-main {
+    min-height: auto;
+    padding: 38px 0 56px;
   }
 
-  h1 {
-    font-size: 52px;
+  .guide-intro {
+    align-items: start;
+    padding: 42px 0;
   }
 
-  .notice {
-    border-radius: 8px;
+  .guide-intro h1 {
+    font-size: 46px;
+  }
+
+  .secondary-action {
+    width: fit-content;
   }
 
   button {
@@ -670,6 +726,12 @@ pre code {
 
   .connect-section {
     padding-inline: 16px;
+  }
+
+  .guide-link {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
   }
 
   .site-footer {

@@ -11,11 +11,11 @@ Use OKLCH colors. Prefer tinted off-white surfaces, graphite text, green for suc
 ## Components
 
 - Top navigation with token and environment metadata.
-- First viewport split: CCH narrative and faucet action.
+- Homepage first viewport: one centered faucet action with no separate marketing hero.
 - Form controls use standard browser affordances with strong focus states.
 - Status messages are inline, not modal.
 - Flow diagram uses labeled nodes and lines, not decorative icons.
-- Keep the first viewport on the subtle grid background. Use quieter plain sections below for reference material and code snippets.
+- Keep the homepage on the subtle grid background. Put reference material and code snippets on a separate developer guide page.
 - Reference data should be scannable: compact key/value rows, copyable code blocks, and short setup steps.
 
 ## Copy Rules

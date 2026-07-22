@@ -77,31 +77,33 @@ async function pollClaim(id) {
   }
 }
 
-form.addEventListener('submit', async (event) => {
-  event.preventDefault();
-  const button = form.querySelector('button');
-  button.disabled = true;
-  try {
-    const body = {
-      address: new FormData(form).get('address'),
-      turnstileToken,
-    };
-    const claim = await jsonFetch('/api/claims', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    showMessage(`Request queued. Reference: ${claim.id}.`);
-    await pollClaim(claim.id);
-  } catch (err) {
-    showMessage(err.message || 'Request failed', 'error');
-  } finally {
-    button.disabled = false;
-  }
-});
+if (form && message && claimAmount && turnstileMount) {
+  form.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const button = form.querySelector('button');
+    button.disabled = true;
+    try {
+      const body = {
+        address: new FormData(form).get('address'),
+        turnstileToken,
+      };
+      const claim = await jsonFetch('/api/claims', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      });
+      showMessage(`Request queued. Reference: ${claim.id}.`);
+      await pollClaim(claim.id);
+    } catch (err) {
+      showMessage(err.message || 'Request failed', 'error');
+    } finally {
+      button.disabled = false;
+    }
+  });
 
-try {
-  await loadInfo();
-} catch {
+  try {
+    await loadInfo();
+  } catch {
+  }
 }
 wireCopyButtons();
