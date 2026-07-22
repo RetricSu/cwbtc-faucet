@@ -7,6 +7,7 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
     "start": "node dist/index.js",
+    "test": "tsx --test src/ckb/*.test.ts",
     "typecheck": "tsc --noEmit",
     "wallet:create": "tsx src/cli/create-hot-wallet.ts"
   },

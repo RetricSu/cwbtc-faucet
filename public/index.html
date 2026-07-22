@@ -3,7 +3,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Fiber CCH cWBTC Faucet</title>
+    <title>Fiber CCH cWBTC Test Token Service</title>
+    <meta
+      name="description"
+      content="Open-source CKB testnet service for requesting cWBTC used in Fiber CCH development. Test tokens have no monetary value."
+    />
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body>
@@ -12,13 +16,14 @@
         <span class="mark-symbol" aria-hidden="true">F</span>
         <span>
           <strong>Fiber CCH</strong>
-          <small>testnet faucet</small>
+          <small>CKB testnet tool</small>
         </span>
       </a>
       <nav class="nav-links" aria-label="Useful links">
         <a href="#flow">Flow</a>
         <a href="#token">Token</a>
         <a href="#connect">Connect</a>
+        <a href="https://github.com/RetricSu/cwbtc-faucet" rel="noreferrer">Source</a>
         <a href="https://github.com/nervosnetwork/fiber" rel="noreferrer">Fiber</a>
       </nav>
     </header>
@@ -27,9 +32,9 @@
       <section class="intro" aria-labelledby="page-title">
         <div class="intro-copy">
           <p class="eyebrow">CKB testnet asset</p>
-          <h1 id="page-title">Claim cWBTC for Fiber CCH testing</h1>
+          <h1 id="page-title">Get cWBTC for Fiber CCH testing</h1>
           <p class="lede">
-            cWBTC is a regular CKB UDT used here as fake wrapped BTC. Use it to test
+            cWBTC is a test-only CKB UDT used to model wrapped BTC accounting. Use it to test
             Fiber Cross-Chain Hub payments from CKB UDT channels into Lightning testnet invoices.
           </p>
           <div class="notice" role="note">
@@ -40,25 +45,36 @@
         <section class="claim-panel" aria-labelledby="claim-title">
           <div class="panel-head">
             <div>
-              <p class="section-label">Faucet</p>
-              <h2 id="claim-title">Get test cWBTC</h2>
+              <p class="section-label">Test token service</p>
+              <h2 id="claim-title">Request test cWBTC</h2>
             </div>
             <span class="status-pill">testnet</span>
           </div>
 
           <dl class="faucet-meta">
             <div>
-              <dt>Claim amount</dt>
+              <dt>Amount per request</dt>
               <dd id="claim-amount">Loading...</dd>
             </div>
           </dl>
 
           <form id="claim-form">
-            <label for="address">CKB testnet address</label>
+            <label for="address">Destination CKB testnet address</label>
             <div class="input-row">
-              <input id="address" name="address" placeholder="ckt1..." autocomplete="off" required />
-              <button type="submit">Claim</button>
+              <input
+                id="address"
+                name="address"
+                placeholder="ckt1..."
+                autocomplete="off"
+                aria-describedby="address-help"
+                required
+              />
+              <button type="submit">Request tokens</button>
             </div>
+            <p id="address-help" class="field-help">
+              Enter a public CKB testnet address only. Never enter a private key, seed phrase,
+              password, or payment information. This service does not connect to or sign with your wallet.
+            </p>
             <div id="turnstile"></div>
           </form>
 
@@ -80,7 +96,7 @@
         <div class="flow-visual" aria-label="CKB UDT to Fiber CCH to Lightning invoice flow">
           <div class="flow-node">
             <span>01</span>
-            <strong>Claim cWBTC</strong>
+            <strong>Get test cWBTC</strong>
             <small>CKB testnet UDT</small>
           </div>
           <div class="flow-line" aria-hidden="true"></div>
@@ -211,6 +227,17 @@
         </div>
       </section>
     </main>
+
+    <footer class="site-footer">
+      <p>
+        Open-source developer infrastructure for CKB testnet. cWBTC is a test token with no monetary value.
+      </p>
+      <nav aria-label="Project references">
+        <a href="https://github.com/RetricSu/cwbtc-faucet" rel="noreferrer">Source code</a>
+        <a href="https://github.com/nervosnetwork/fiber" rel="noreferrer">Fiber Network</a>
+        <a href="https://docs.nervos.org/" rel="noreferrer">Nervos docs</a>
+      </nav>
+    </footer>
     <script src="/app.js" type="module"></script>
   </body>
 </html>

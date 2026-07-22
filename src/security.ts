@@ -3,6 +3,7 @@ import type { Request } from 'express';
 import { ccc } from '@ckb-ccc/ccc';
 import { config } from './config.js';
 import { countClaims, hasActiveClaim, latestClaimForAddress } from './db.js';
+import { sameScriptType } from './ckb/script.js';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -17,7 +18,11 @@ export async function validateTestnetAddress(address: string): Promise<string | 
 
   try {
     const client = new ccc.ClientPublicTestnet({ url: config.ckbRpcUrl });
-    await ccc.Address.fromString(address, client);
+    const recipient = await ccc.Address.fromString(address, client);
+    const secp256k1 = await client.getKnownScript(ccc.KnownScript.Secp256k1Blake160);
+    if (!sameScriptType(recipient.script, secp256k1)) {
+      return 'Recipient must use the standard CKB secp256k1 lock';
+    }
     return null;
   } catch {
     return 'Invalid CKB testnet address';

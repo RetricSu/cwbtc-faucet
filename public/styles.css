@@ -41,7 +41,8 @@ body::before {
 }
 
 .topbar,
-main {
+main,
+.site-footer {
   width: min(1180px, calc(100% - 40px));
   margin: 0 auto;
 }
@@ -227,6 +228,13 @@ label {
 form {
   display: grid;
   gap: 10px;
+}
+
+.field-help {
+  margin: 2px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .input-row {
@@ -550,9 +558,39 @@ pre code {
   line-height: 1.5;
 }
 
+.site-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  border-top: 1px solid var(--line-strong);
+  padding: 28px 0 36px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.site-footer p {
+  max-width: 66ch;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.site-footer nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 16px;
+}
+
+.site-footer a {
+  color: var(--accent-dark);
+  font-weight: 700;
+}
+
 @media (max-width: 720px) {
   .topbar,
-  main {
+  main,
+  .site-footer {
     width: min(100% - 24px, 920px);
   }
 
@@ -632,5 +670,14 @@ pre code {
 
   .connect-section {
     padding-inline: 16px;
+  }
+
+  .site-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .site-footer nav {
+    justify-content: flex-start;
   }
 }
